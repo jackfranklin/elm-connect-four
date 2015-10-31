@@ -46,10 +46,42 @@ fillCellOnBoard board x y colour =
   in
     List.map fillCellIfMatches board
 
-
 createBlankCell : Int -> Int -> Cell
 createBlankCell x y =
   { x = x, y = y, colour = NoColour }
+
+biggestSequenceOnRow : Board -> Int -> Int
+biggestSequenceOnRow board yIndex =
+  let
+    row = List.filter (\cell -> cell.y == yIndex) board
+    cellsAsColours = List.map .colour row
+
+    newMemo last newCurrent oldMemo =
+      let
+        newLongest =
+          if | oldMemo.current > oldMemo.longest -> oldMemo.current
+             | otherwise -> oldMemo.longest
+      in
+        {
+          last = last,
+          current = newCurrent,
+          longest = newLongest
+        }
+
+    processCell currentColour memo =
+      case memo.last of
+        currentColour -> newMemo currentColour (memo.current + 1) memo
+        _ -> newMemo currentColour 1 memo
+
+    processRow colour memo =
+      case colour of
+        NoColour -> newMemo colour 0 memo
+        Red -> processCell Red memo
+        Yellow -> processCell Yellow memo
+
+  in
+    .longest (List.foldl processRow { last = NoColour, current = 0, longest = 0 } cellsAsColours)
+
 
 createBoard : List Cell
 createBoard =

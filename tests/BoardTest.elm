@@ -25,10 +25,23 @@ fillCellOnBoardAssertion =
   in
     assertEqual expectedCell (findCellOnBoard newBoard 2 1)
 
+findRowSequenceAssertion =
+  let
+    rowIndex = 0
+    firstBoard = fillCellOnBoard createBoard 0 rowIndex Red
+    secondBoard = fillCellOnBoard firstBoard 1 rowIndex Red
+    finalBoard = fillCellOnBoard secondBoard 3 rowIndex Yellow
+  in
+    assertEqual 2 (biggestSequenceOnRow finalBoard rowIndex)
+
 tests : Test
 tests =
     suite "Board Tests"
       [
+        suite "#biggestSequenceOnRow"
+          [
+            test "it finds the largest sequence" findRowSequenceAssertion
+          ],
         suite "#createBoard"
           [ test "it creates a board that is 6 x 7"
               (assertEqual 42 (List.length createBoard)),
