@@ -1,5 +1,8 @@
 module ConnectFour where
 
+import Maybe exposing(Maybe(..))
+import Debug
+
 type Colour = Red | Yellow | NoColour
 
 type alias Board = List Cell
@@ -18,6 +21,30 @@ cellIsFilled cell =
 colourCell : Cell -> Colour -> Cell
 colourCell cell newColour =
   { cell | colour <- newColour }
+
+cellMatches : Cell -> Int -> Int -> Bool
+cellMatches cell x y =
+  cell.x == x && cell.y == y
+
+findCellOnBoard : Board -> Int -> Int -> Cell
+findCellOnBoard board x y =
+  let
+    defaultCell = { x = 0, y = 0, colour = NoColour }
+    foundCells = List.filter (\c -> cellMatches c x y) board
+  in
+    case (List.head foundCells) of
+      Nothing -> Debug.crash "Cell you searched for doesn't exist"
+      x -> Maybe.withDefault defaultCell x
+
+fillCellOnBoard : Board -> Int -> Int -> Colour -> Board
+fillCellOnBoard board x y colour =
+  let
+    foundCell = findCellOnBoard board x y
+    fillCellIfMatches cell =
+      if cellMatches cell x y then colourCell cell colour else cell
+  in
+    List.map fillCellIfMatches board
+
 
 createBlankCell : Int -> Int -> Cell
 createBlankCell x y =

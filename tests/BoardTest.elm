@@ -11,6 +11,20 @@ boardCellsAllEmpty : Board -> Bool
 boardCellsAllEmpty board =
   List.all (\cell -> (not (cellIsFilled cell))) board
 
+findCellOnBoardAssertion =
+  let
+    foundCell = findCellOnBoard createBoard 1 1
+  in
+    assertEqual { x = 1, y = 1, colour = NoColour } foundCell
+
+fillCellOnBoardAssertion =
+  let
+    board = createBoard
+    expectedCell = { x = 2, y = 1, colour = Red }
+    newBoard = fillCellOnBoard board 2 1 Red
+  in
+    assertEqual expectedCell (findCellOnBoard newBoard 2 1)
+
 tests : Test
 tests =
     suite "Board Tests"
@@ -20,5 +34,14 @@ tests =
               (assertEqual 42 (List.length createBoard)),
             test "it creates all the cells empty"
               (assert (boardCellsAllEmpty createBoard))
+          ],
+        suite "#findCellOnBoard"
+          [ test "it returns the cell on the board"
+              findCellOnBoardAssertion
+          ],
+        suite "#fillCellOnBoard"
+          [
+            test "it fills the cell with given colour"
+              fillCellOnBoardAssertion
           ]
       ]
