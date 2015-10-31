@@ -33,6 +33,7 @@ findCellOnBoard board x y =
     foundCells = List.filter (\c -> cellMatches c x y) board
   in
     case (List.head foundCells) of
+      --TODO: this is probably not idiomatic Elm...
       Nothing -> Debug.crash "Cell you searched for doesn't exist"
       x -> Maybe.withDefault defaultCell x
 
