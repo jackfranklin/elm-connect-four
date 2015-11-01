@@ -36,12 +36,16 @@ getBoundsForDirection direction =
     "up-left" -> (0, maxYValue)
 
 
+xOrYAtBounds: String -> (Int, Int) -> Bool
+xOrYAtBounds direction (x, y) =
+  x == (fst (getBoundsForDirection direction))
+  || y == (snd (getBoundsForDirection direction))
+
 getNextDiagonalCoords cellList direction startX startY =
   case List.head (List.reverse cellList) of
     Nothing -> getNextDiagonalCoords [(startX, startY)] direction startX startY
     Just (lastX, lastY) ->
-      if | lastX == (fst (getBoundsForDirection direction))
-           || lastY == (snd (getBoundsForDirection direction)) -> cellList
+      if | xOrYAtBounds direction (lastX, lastY) -> cellList
          | otherwise ->
              let
                newList = List.append cellList [getNewCoordsForDirection direction (lastX, lastY)]
