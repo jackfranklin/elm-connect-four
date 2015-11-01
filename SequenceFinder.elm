@@ -52,7 +52,6 @@ buildDiagonalFrom : Int -> Int -> String -> List (Int, Int)
 buildDiagonalFrom x y direction =
   getNextDiagonalCoords [] direction x y
 
-
 colourFromCoords : Board -> Int -> Int -> Colour
 colourFromCoords board x y =
   .colour (findCellOnBoard board x y)
@@ -64,10 +63,10 @@ getDiagonalsFromCell board x y =
       colourFromCoords board cX cY
   in
     [
-      List.map coordsToColour (buildDiagonalFrom x y "up-right")
-      -- buildDiagonalFrom x y "down-right",
-      -- buildDiagonalFrom x y "up-left",
-      -- buildDiagonalFrom x y "down-left"
+      (List.map coordsToColour (buildDiagonalFrom x y "up-right")),
+      (List.map coordsToColour (buildDiagonalFrom x y "down-right")),
+      (List.map coordsToColour (buildDiagonalFrom x y "up-left")),
+      (List.map coordsToColour (buildDiagonalFrom x y "down-left"))
     ]
 
 
