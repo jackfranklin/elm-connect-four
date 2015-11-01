@@ -24,12 +24,16 @@ getNewCoordsForDirection direction (x, y) =
   case direction of
     "up-right" -> (x + 1, y + 1)
     "down-right" -> (x + 1, y - 1)
+    "down-left" -> (x - 1, y - 1)
+    "up-left" -> (x - 1, y + 1)
 
 getBoundsForDirection: String -> (Int, Int)
 getBoundsForDirection direction =
   case direction of
     "up-right" -> (maxXValue, maxYValue)
     "down-right" -> (maxXValue, 0)
+    "down-left" -> (0, 0)
+    "up-left" -> (0, maxYValue)
 
 
 getNextDiagonalCoords cellList direction startX startY =

@@ -24,10 +24,27 @@ diagonalDownRightTest =
     test "down-right finds the expected list"
     (assertEqual expected (buildDiagonalFrom 3 3 "down-right"))
 
+diagonalDownLeftTest =
+  let
+    board = createBoard
+    expected = [(3, 3), (2, 2), (1, 1), (0, 0)]
+  in
+    test "down-left finds the expected list"
+    (assertEqual expected (buildDiagonalFrom 3 3 "down-left"))
+
+diagonalUpLeftTest =
+  let
+    board = createBoard
+    expected = [(3, 3), (2, 4), (1, 5)]
+  in
+    test "up-left finds the expected list"
+    (assertEqual expected (buildDiagonalFrom 3 3 "up-left"))
+
 
 tests : Test
 tests =
     suite "BuildingDiagonalTest"
       [
-        diagonalUpRightTest, diagonalDownRightTest
+        diagonalUpRightTest, diagonalDownRightTest,
+        diagonalDownLeftTest, diagonalUpLeftTest
       ]
