@@ -1,6 +1,7 @@
 module SequenceFinder where
 
 import ConnectFour exposing(Board, Colour(..), findCellOnBoard, maxXValue, maxYValue)
+import List.Extra exposing(group, maximumBy)
 
 type alias SequenceMemo =
   {
@@ -38,8 +39,7 @@ getBoundsForDirection direction =
 
 xOrYAtBounds: String -> (Int, Int) -> Bool
 xOrYAtBounds direction (x, y) =
-  x == (fst (getBoundsForDirection direction))
-  || y == (snd (getBoundsForDirection direction))
+  x == (fst (getBoundsForDirection direction)) || y == (snd (getBoundsForDirection direction))
 
 getNextDiagonalCoords cellList direction startX startY =
   case List.head (List.reverse cellList) of
@@ -86,45 +86,16 @@ getColumnOfColours board xIndex =
     |> List.filter (\cell -> cell.x == xIndex)
     |> List.map .colour
 
-updateSequenceMemo : Colour -> Int -> SequenceMemo -> SequenceMemo
-updateSequenceMemo latestColour newCurrentCount oldMemo =
-  let
-    haveNewLongest =
-      newCurrentCount > oldMemo.current && newCurrentCount > oldMemo.longest
-
-    newLongest =
-      if haveNewLongest then newCurrentCount else oldMemo.longest
-
-    sequenceColour =
-      if haveNewLongest then latestColour else oldMemo.sequenceColour
-  in
-    { last = latestColour,
-      current = newCurrentCount,
-      longest = newLongest,
-      sequenceColour = sequenceColour }
-
-processColour : Colour -> SequenceMemo -> SequenceMemo
-processColour colour memo =
-  case colour of
-    -- if this cell is empty, current sequence is now 0 and we start again
-    NoColour -> updateSequenceMemo NoColour 0 memo
-    Red -> case memo.last of
-      Red -> updateSequenceMemo Red (memo.current + 1) memo
-      _ -> updateSequenceMemo Red 1 memo
-    Yellow -> case memo.last of
-      Yellow -> updateSequenceMemo Yellow (memo.current + 1) memo
-      _ -> updateSequenceMemo Yellow 1 memo
-
-
 processListOfColours : List Colour -> SequenceResult
 processListOfColours colours =
-  let
-    result = List.foldl processColour initialMemo colours
+  let longestSeq = group colours
+      |> List.filter (\(colour::_) -> colour /= NoColour)
+      |> maximumBy List.length
+      |> Maybe.withDefault []
   in
-    {
-      sequence = result.longest,
-      colour = result.sequenceColour
-    }
+     case List.head longestSeq of
+       Nothing -> { sequence = 0, colour = NoColour }
+       Just colour -> { sequence = List.length longestSeq, colour = colour }
 
 sequenceInColumn: Board -> Int -> SequenceResult
 sequenceInColumn board xIndex =
@@ -136,6 +107,9 @@ sequenceInRow board yIndex =
 
 sequenceInDiagonal: Board -> Int -> Int -> SequenceResult
 sequenceInDiagonal board x y =
+  -- there are 4 diagonals for a given cell that might have a sequence
+  -- so we get them all and sort to find the one with the longest
+  -- which is all we really care about
   List.map processListOfColours (getDiagonalsFromCell board x y)
     |> List.sortBy .sequence
     |> List.reverse
