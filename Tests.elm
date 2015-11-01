@@ -8,6 +8,8 @@ import String
 import CellTest
 import BoardTest
 import SequenceFinderTest
+import DiagonalSequenceFinderTest
+import BuildingDiagonalTest
 
 all : Test
 all =
@@ -15,5 +17,7 @@ all =
         [
             CellTest.tests,
             BoardTest.tests,
-            SequenceFinderTest.tests
+            SequenceFinderTest.tests,
+            DiagonalSequenceFinderTest.tests,
+            BuildingDiagonalTest.tests
         ]
