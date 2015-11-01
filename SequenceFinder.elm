@@ -134,10 +134,6 @@ sequenceInRow : Board -> Int -> SequenceResult
 sequenceInRow board yIndex =
   processListOfColours (getRowOfColours board yIndex)
 
-processDiagonalLists : List (List Colour) -> List SequenceResult
-processDiagonalLists diagonalLists =
-  List.map (\colourList -> processListOfColours colourList) diagonalLists
-
 sequenceInDiagonal: Board -> Int -> Int -> SequenceResult
 sequenceInDiagonal board x y =
   List.map processListOfColours (getDiagonalsFromCell board x y)
