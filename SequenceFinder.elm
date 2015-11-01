@@ -2,13 +2,22 @@ module SequenceFinder where
 
 import ConnectFour exposing(Board, Colour(..))
 
-type alias SequenceMemo  =
+type alias SequenceMemo =
   {
     last: Colour,
     current: Int,
     longest: Int,
     sequenceColour: Colour
   }
+
+type alias SequenceResult =
+  { colour : Colour, sequence : Int }
+
+
+initialMemo : SequenceMemo
+initialMemo =
+  { sequenceColour = NoColour, last = NoColour, current = 0, longest = 0 }
+
 
 getRowOfColours : Board -> Int -> List Colour
 getRowOfColours board yIndex =
@@ -39,38 +48,34 @@ updateSequenceMemo latestColour newCurrentCount oldMemo =
       longest = newLongest,
       sequenceColour = sequenceColour }
 
-processCellOnBoard : Colour -> SequenceMemo -> SequenceMemo
-processCellOnBoard colour memo =
+processColour : Colour -> SequenceMemo -> SequenceMemo
+processColour colour memo =
   case colour of
     -- if this cell is empty, current sequence is now 0 and we start again
     NoColour -> updateSequenceMemo NoColour 0 memo
     Red -> case memo.last of
       Red -> updateSequenceMemo Red (memo.current + 1) memo
-      Yellow -> updateSequenceMemo Red 1 memo
-      NoColour -> updateSequenceMemo Red 1 memo
+      _ -> updateSequenceMemo Red 1 memo
     Yellow -> case memo.last of
       Yellow -> updateSequenceMemo Yellow (memo.current + 1) memo
-      Red -> updateSequenceMemo Yellow 1 memo
-      NoColour -> updateSequenceMemo Yellow 1 memo
+      _ -> updateSequenceMemo Yellow 1 memo
 
 
-sequenceInColumn: Board -> Int -> { sequence: Int, colour: Colour }
+processListOfColours : List Colour -> SequenceResult
+processListOfColours colours =
+  let
+    result = List.foldl processColour initialMemo colours
+  in
+    {
+      sequence = result.longest,
+      colour = result.sequenceColour
+    }
+
+sequenceInColumn: Board -> Int -> SequenceResult
 sequenceInColumn board xIndex =
-  let
-    result = List.foldl processCellOnBoard { sequenceColour = NoColour, last = NoColour, current = 0, longest = 0 } (getColumnOfColours board xIndex)
-  in
-    {
-      sequence = result.longest,
-      colour = result.sequenceColour
-    }
+  processListOfColours (getColumnOfColours board xIndex)
 
-sequenceInRow : Board -> Int -> { sequence: Int, colour: Colour }
+sequenceInRow : Board -> Int -> SequenceResult
 sequenceInRow board yIndex =
-  let
-    result = List.foldl processCellOnBoard { sequenceColour = NoColour, last = NoColour, current = 0, longest = 0 } (getRowOfColours board yIndex)
-  in
-    {
-      sequence = result.longest,
-      colour = result.sequenceColour
-    }
+  processListOfColours (getRowOfColours board yIndex)
 
