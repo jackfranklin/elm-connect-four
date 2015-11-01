@@ -7,12 +7,13 @@ import String
 
 import CellTest
 import BoardTest
-
+import SequenceFinderTest
 
 all : Test
 all =
     suite "ConnectFour Tests"
         [
             CellTest.tests,
-            BoardTest.tests
+            BoardTest.tests,
+            SequenceFinderTest.tests
         ]
