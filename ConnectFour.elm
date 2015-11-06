@@ -52,36 +52,6 @@ createBlankCell : Int -> Int -> Cell
 createBlankCell x y =
   { x = x, y = y, colour = NoColour }
 
-biggestSequenceOnRow : Board -> Int -> Int
-biggestSequenceOnRow board yIndex =
-  let
-    row =
-      board
-       |> List.filter (\cell -> cell.y == yIndex)
-       |> List.map .colour
-
-    newMemo last newCurrent oldMemo =
-      let
-        newLongest =
-          if | oldMemo.current > oldMemo.longest -> oldMemo.current
-             | otherwise -> oldMemo.longest
-      in
-        { last = last, current = newCurrent, longest = newLongest }
-
-    processCell currentColour memo =
-      case memo.last of
-        currentColour -> newMemo currentColour (memo.current + 1) memo
-        _ -> newMemo currentColour 1 memo
-
-    processRow colour memo =
-      case colour of
-        NoColour -> newMemo colour 0 memo
-        colourType -> processCell colourType memo
-
-  in
-    .longest (List.foldl processRow { last = NoColour, current = 0, longest = 0 } row)
-
-
 createBoard : List Cell
 createBoard =
   let

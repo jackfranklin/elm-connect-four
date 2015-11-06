@@ -14,47 +14,64 @@ type alias SequenceMemo =
 type alias SequenceResult =
   { colour : Colour, sequence : Int }
 
+type DiagonalDirection =
+  UpRight | DownRight | DownLeft | UpLeft
+
+type alias Coord = (Int, Int)
 
 initialMemo : SequenceMemo
 initialMemo =
   { sequenceColour = NoColour, last = NoColour, current = 0, longest = 0 }
 
 
-getNewCoordsForDirection: String -> (Int, Int) -> (Int, Int)
+getNewCoordsForDirection : DiagonalDirection -> Coord -> Coord
 getNewCoordsForDirection direction (x, y) =
   case direction of
-    "up-right" -> (x + 1, y + 1)
-    "down-right" -> (x + 1, y - 1)
-    "down-left" -> (x - 1, y - 1)
-    "up-left" -> (x - 1, y + 1)
+    UpRight ->
+      (x + 1, y + 1)
+    DownRight ->
+      (x + 1, y - 1)
+    DownLeft ->
+      (x - 1, y - 1)
+    UpLeft ->
+      (x - 1, y + 1)
 
-getBoundsForDirection: String -> (Int, Int)
+
+getBoundsForDirection : DiagonalDirection -> Coord
 getBoundsForDirection direction =
   case direction of
-    "up-right" -> (maxXValue, maxYValue)
-    "down-right" -> (maxXValue, 0)
-    "down-left" -> (0, 0)
-    "up-left" -> (0, maxYValue)
+    UpRight ->
+      (maxXValue, maxYValue)
+    DownRight ->
+      (maxXValue, 0)
+    DownLeft ->
+      (0, 0)
+    UpLeft ->
+      (0, maxYValue)
 
 
-xOrYAtBounds: String -> (Int, Int) -> Bool
+xOrYAtBounds : DiagonalDirection -> Coord -> Bool
 xOrYAtBounds direction (x, y) =
-  x == (fst (getBoundsForDirection direction)) || y == (snd (getBoundsForDirection direction))
+  let coords = getBoundsForDirection direction
+  in
+    x == (fst coords) || y == (snd coords)
 
-getNextDiagonalCoords cellList direction startX startY =
+
+getNextDiagonalCoords : List Coord -> DiagonalDirection -> Coord -> List Coord
+getNextDiagonalCoords cellList direction (startX, startY) =
   case List.head (List.reverse cellList) of
-    Nothing -> getNextDiagonalCoords [(startX, startY)] direction startX startY
+    Nothing -> getNextDiagonalCoords [(startX, startY)] direction (startX, startY)
     Just (lastX, lastY) ->
       if | xOrYAtBounds direction (lastX, lastY) -> cellList
          | otherwise ->
              let
                newList = List.append cellList [getNewCoordsForDirection direction (lastX, lastY)]
              in
-               getNextDiagonalCoords newList direction startX startY
+               getNextDiagonalCoords newList direction (startX, startY)
 
-buildDiagonalFrom : Int -> Int -> String -> List (Int, Int)
-buildDiagonalFrom x y direction =
-  getNextDiagonalCoords [] direction x y
+buildDiagonalFrom : Coord -> DiagonalDirection -> List Coord
+buildDiagonalFrom (x, y) direction =
+  getNextDiagonalCoords [] direction (x, y)
 
 colourFromCoords : Board -> Int -> Int -> Colour
 colourFromCoords board x y =
@@ -62,15 +79,14 @@ colourFromCoords board x y =
 
 getDiagonalsFromCell : Board -> Int -> Int -> List (List Colour)
 getDiagonalsFromCell board x y =
-  let
-    coordsToColour (cX, cY) =
+  let coordsToColour (cX, cY) =
       colourFromCoords board cX cY
   in
     [
-      (List.map coordsToColour (buildDiagonalFrom x y "up-right")),
-      (List.map coordsToColour (buildDiagonalFrom x y "down-right")),
-      (List.map coordsToColour (buildDiagonalFrom x y "up-left")),
-      (List.map coordsToColour (buildDiagonalFrom x y "down-left"))
+      (List.map coordsToColour (buildDiagonalFrom (x, y) UpRight)),
+      (List.map coordsToColour (buildDiagonalFrom (x, y) DownRight)),
+      (List.map coordsToColour (buildDiagonalFrom (x, y) UpLeft)),
+      (List.map coordsToColour (buildDiagonalFrom (x, y) DownLeft))
     ]
 
 
