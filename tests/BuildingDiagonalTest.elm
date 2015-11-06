@@ -4,9 +4,7 @@ import String
 import ElmTest.Test exposing (test, Test, suite)
 import ElmTest.Assertion exposing (assert, assertEqual)
 
-import SequenceFinder exposing (buildDiagonalFrom, DiagonalDirection(..))
-
-import ConnectFour exposing (createBoard)
+import ConnectFour exposing (createBoard, buildDiagonalFrom, DiagonalDirection(..))
 
 diagonalUpRightTest =
   let

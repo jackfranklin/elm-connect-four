@@ -4,8 +4,9 @@ import String
 import ElmTest.Test exposing (test, Test, suite)
 import ElmTest.Assertion exposing (assert, assertEqual)
 
-import ConnectFour exposing (fillCellOnBoard, createBoard, Colour(..))
-import SequenceFinder exposing (sequenceInRow, sequenceInColumn)
+import ConnectFour exposing (
+  fillCellOnBoard, createBoard, Colour(..),
+  sequenceInRow, sequenceInColumn, longestSequenceOnBoard)
 
 sequenceInRowTestOne =
   let
@@ -78,6 +79,58 @@ sequenceInColumnTestThree =
     (assertEqual expected (sequenceInColumn finalBoard 0))
 
 
+reverseFillCellOnBoard x y colour board =
+  fillCellOnBoard board x y colour
+
+longestSequenceOnBoardTestOne =
+  let
+    board =
+      createBoard
+       |> reverseFillCellOnBoard 0 0 Red
+       |> reverseFillCellOnBoard 1 0 Red
+       |> reverseFillCellOnBoard 2 0 Red
+       |> reverseFillCellOnBoard 2 2 Yellow
+       |> reverseFillCellOnBoard 3 2 Yellow
+       |> reverseFillCellOnBoard 4 2 Yellow
+       |> reverseFillCellOnBoard 5 2 Yellow
+    expected = { sequence = 4, colour = Yellow }
+  in
+    test "it finds a long row sequence"
+    (assertEqual expected (longestSequenceOnBoard board))
+
+longestSequenceOnBoardTestTwo =
+  let
+    board =
+      createBoard
+       |> reverseFillCellOnBoard 0 0 Red
+       |> reverseFillCellOnBoard 0 1 Red
+       |> reverseFillCellOnBoard 0 2 Red
+       |> reverseFillCellOnBoard 2 2 Yellow
+       |> reverseFillCellOnBoard 2 3 Yellow
+       |> reverseFillCellOnBoard 2 4 Yellow
+       |> reverseFillCellOnBoard 2 5 Yellow
+    expected = { sequence = 4, colour = Yellow }
+  in
+    test "it finds a long column sequence on the board"
+    (assertEqual expected (longestSequenceOnBoard board))
+
+longestSequenceOnBoardTestThree =
+  let
+    board =
+      createBoard
+       |> reverseFillCellOnBoard 0 0 Red
+       |> reverseFillCellOnBoard 0 1 Red
+       |> reverseFillCellOnBoard 0 2 Red
+       |> reverseFillCellOnBoard 1 1 Yellow
+       |> reverseFillCellOnBoard 2 2 Yellow
+       |> reverseFillCellOnBoard 3 3 Yellow
+       |> reverseFillCellOnBoard 4 4 Yellow
+    expected = { sequence = 4, colour = Yellow }
+  in
+    test "it finds a long diagonal sequence on the board"
+    (assertEqual expected (longestSequenceOnBoard board))
+
+
 tests : Test
 tests =
     suite "SequenceFinderTest"
@@ -89,5 +142,9 @@ tests =
         suite "sequenceInColumn"
         [
           sequenceInColumTestOne, sequenceInColumnTestTwo, sequenceInColumnTestThree
+        ],
+        suite "longestSequenceOnBoard"
+        [
+          longestSequenceOnBoardTestOne, longestSequenceOnBoardTestTwo, longestSequenceOnBoardTestThree
         ]
       ]

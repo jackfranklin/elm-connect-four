@@ -6,6 +6,8 @@ import ElmTest.Assertion exposing (assert, assertEqual)
 
 import ConnectFour exposing (..)
 
+reverseFillCellOnBoard x y colour board =
+  fillCellOnBoard board x y colour
 
 boardCellsAllEmpty : Board -> Bool
 boardCellsAllEmpty board =
@@ -25,6 +27,17 @@ fillCellOnBoardAssertion =
   in
     assertEqual expectedCell (findCellOnBoard newBoard 2 1)
 
+boardHasWinnerAssertion =
+  let
+    board =
+      createBoard
+       |> reverseFillCellOnBoard 1 1 Yellow
+       |> reverseFillCellOnBoard 2 2 Yellow
+       |> reverseFillCellOnBoard 3 3 Yellow
+       |> reverseFillCellOnBoard 4 4 Yellow
+  in
+    (assert (boardHasWinner board))
+
 tests : Test
 tests =
     suite "Board Tests"
@@ -43,5 +56,10 @@ tests =
           [
             test "it fills the cell with given colour"
               fillCellOnBoardAssertion
+          ],
+        suite "#boardHasWinner"
+          [
+            test "it returns true if the board has a winner"
+              boardHasWinnerAssertion
           ]
       ]
