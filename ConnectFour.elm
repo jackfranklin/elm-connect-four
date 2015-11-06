@@ -47,12 +47,12 @@ cellMatches: Coord -> Cell -> Bool
 cellMatches (x, y) cell =
   cell.x == x && cell.y == y
 
-findCellOnBoard : Board -> Int -> Int -> Cell
-findCellOnBoard board x y =
-  case List.head (List.filter (cellMatches (x, y)) board) of
+findCellOnBoard : Board -> Coord -> Cell
+findCellOnBoard board coords =
+  case List.head (List.filter (cellMatches coords) board) of
     --TODO: this is probably not idiomatic Elm...
     Nothing -> Debug.crash "Cell you searched for doesn't exist"
-    Just x -> x
+    Just cell -> cell
 
 fillCellOnBoard : Coord -> Colour -> Board -> Board
 fillCellOnBoard (x, y) colour board =
@@ -132,11 +132,11 @@ buildDiagonalFrom (x, y) direction =
   getNextDiagonalCoords [] direction (x, y)
 
 colourFromCoords : Board -> Coord -> Colour
-colourFromCoords board (x, y) =
-  .colour (findCellOnBoard board x y)
+colourFromCoords board coords =
+  .colour (findCellOnBoard board coords)
 
-getDiagonalsFromCell : Board -> Int -> Int -> List (List Colour)
-getDiagonalsFromCell board x y =
+getDiagonalsFromCell : Board -> Coord -> List (List Colour)
+getDiagonalsFromCell board (x, y) =
   List.map (\direction ->
     List.map (colourFromCoords board) (buildDiagonalFrom (x, y) direction)
   ) [UpRight, DownRight, UpLeft, DownLeft]
@@ -173,12 +173,12 @@ sequenceInRow : Board -> Int -> SequenceResult
 sequenceInRow board yIndex =
   processListOfColours (getRowOfColours board yIndex)
 
-sequenceInDiagonal: Board -> Int -> Int -> SequenceResult
-sequenceInDiagonal board x y =
+sequenceInDiagonal: Board -> Coord -> SequenceResult
+sequenceInDiagonal board coords =
   -- there are 4 diagonals for a given cell that might have a sequence
   -- so we get them all and sort to find the one with the longest
   -- which is all we really care about
-  findLargestSequence <| List.map processListOfColours (getDiagonalsFromCell board x y)
+  findLargestSequence <| List.map processListOfColours (getDiagonalsFromCell board coords)
 
 findLargestSequence : List SequenceResult -> SequenceResult
 findLargestSequence sequences =
@@ -195,6 +195,6 @@ longestSequenceOnBoard board =
     List.map (sequenceInRow board) [0..maxYValue],
     List.map (sequenceInColumn board) [0..maxXValue],
     List.concatMap (\x ->
-      List.map (sequenceInDiagonal board x) [0..maxYValue]
+      List.map (\y -> sequenceInDiagonal board (x, y)) [0..maxYValue]
     ) [0..maxXValue]
   ]

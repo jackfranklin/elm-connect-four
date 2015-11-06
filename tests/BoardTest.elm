@@ -12,7 +12,7 @@ boardCellsAllEmpty board =
 
 findCellOnBoardAssertion =
   let
-    foundCell = findCellOnBoard createBoard 1 1
+    foundCell = findCellOnBoard createBoard (1, 1)
   in
     assertEqual { x = 1, y = 1, colour = NoColour } foundCell
 
@@ -22,7 +22,7 @@ fillCellOnBoardAssertion =
     expectedCell = { x = 2, y = 1, colour = Red }
     newBoard = fillCellOnBoard (2, 1) Red board
   in
-    assertEqual expectedCell (findCellOnBoard newBoard 2 1)
+    assertEqual expectedCell (findCellOnBoard newBoard (2, 1))
 
 boardHasWinnerAssertion =
   let

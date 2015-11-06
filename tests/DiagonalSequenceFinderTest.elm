@@ -19,7 +19,7 @@ diagonalUpRightTest =
     expected = { sequence = 3, colour = Red }
   in
     test "diagonal up right sequence test"
-    (assertEqual expected (sequenceInDiagonal board 0 0))
+    (assertEqual expected (sequenceInDiagonal board (0, 0)))
 
 diagonalDownRightTest =
   let
@@ -31,7 +31,7 @@ diagonalDownRightTest =
     expected = { sequence = 3, colour = Red }
   in
     test "diagonal down right sequence test"
-    (assertEqual expected (sequenceInDiagonal board 3 3))
+    (assertEqual expected (sequenceInDiagonal board (3, 3)))
 
 diagonalDownLeftTest =
   let
@@ -43,7 +43,7 @@ diagonalDownLeftTest =
     expected = { sequence = 2, colour = Red }
   in
     test "diagonal down left sequence test"
-    (assertEqual expected (sequenceInDiagonal board 3 3))
+    (assertEqual expected (sequenceInDiagonal board (3, 3)))
 
 diagonalUpLeftTest =
   let
@@ -55,7 +55,7 @@ diagonalUpLeftTest =
     expected = { sequence = 2, colour = Yellow }
   in
     test "diagonal up left sequence test"
-    (assertEqual expected (sequenceInDiagonal board 3 3))
+    (assertEqual expected (sequenceInDiagonal board (3, 3)))
 
 tests : Test
 tests =
