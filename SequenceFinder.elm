@@ -73,21 +73,15 @@ buildDiagonalFrom : Coord -> DiagonalDirection -> List Coord
 buildDiagonalFrom (x, y) direction =
   getNextDiagonalCoords [] direction (x, y)
 
-colourFromCoords : Board -> Int -> Int -> Colour
-colourFromCoords board x y =
+colourFromCoords : Board -> Coord -> Colour
+colourFromCoords board (x, y) =
   .colour (findCellOnBoard board x y)
 
 getDiagonalsFromCell : Board -> Int -> Int -> List (List Colour)
 getDiagonalsFromCell board x y =
-  let coordsToColour (cX, cY) =
-      colourFromCoords board cX cY
-  in
-    [
-      (List.map coordsToColour (buildDiagonalFrom (x, y) UpRight)),
-      (List.map coordsToColour (buildDiagonalFrom (x, y) DownRight)),
-      (List.map coordsToColour (buildDiagonalFrom (x, y) UpLeft)),
-      (List.map coordsToColour (buildDiagonalFrom (x, y) DownLeft))
-    ]
+  List.map (\direction ->
+    List.map (colourFromCoords board) (buildDiagonalFrom (x, y) direction)
+  ) [UpRight, DownRight, UpLeft, DownLeft]
 
 
 getRowOfColours : Board -> Int -> List Colour
