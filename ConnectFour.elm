@@ -9,6 +9,23 @@ type Colour = Red | Yellow | NoColour
 
 type alias Board = List Cell
 
+type alias SequenceMemo =
+  {
+    last: Colour,
+    current: Int,
+    longest: Int,
+    sequenceColour: Colour
+  }
+
+type alias SequenceResult =
+  { colour : Colour, sequence : Int }
+
+type DiagonalDirection =
+  UpRight | DownRight | DownLeft | UpLeft
+
+type alias Coord = (Int, Int)
+
+
 -- board is 6 down, 7 across
 maxXValue = 6
 maxYValue = 5
@@ -26,27 +43,22 @@ colourCell : Cell -> Colour -> Cell
 colourCell cell newColour =
   { cell | colour <- newColour }
 
-cellMatches : Cell -> Int -> Int -> Bool
-cellMatches cell x y =
+cellMatches: Coord -> Cell -> Bool
+cellMatches (x, y) cell =
   cell.x == x && cell.y == y
 
 findCellOnBoard : Board -> Int -> Int -> Cell
 findCellOnBoard board x y =
-  let
-    defaultCell = { x = 0, y = 0, colour = NoColour }
-    foundCells = List.filter (\c -> cellMatches c x y) board
-  in
-    case (List.head foundCells) of
-      --TODO: this is probably not idiomatic Elm...
-      Nothing -> Debug.crash "Cell you searched for doesn't exist"
-      x -> Maybe.withDefault defaultCell x
+  case List.head (List.filter (cellMatches (x, y)) board) of
+    --TODO: this is probably not idiomatic Elm...
+    Nothing -> Debug.crash "Cell you searched for doesn't exist"
+    Just x -> x
 
-fillCellOnBoard : Board -> Int -> Int -> Colour -> Board
-fillCellOnBoard board x y colour =
+fillCellOnBoard : Coord -> Colour -> Board -> Board
+fillCellOnBoard (x, y) colour board =
   let
-    foundCell = findCellOnBoard board x y
     fillCellIfMatches cell =
-      if cellMatches cell x y then colourCell cell colour else cell
+      if cellMatches (x, y) cell then colourCell cell colour else cell
   in
     List.map fillCellIfMatches board
 
@@ -65,27 +77,6 @@ createBoard =
 boardHasWinner : Board -> Bool
 boardHasWinner board =
   .sequence (longestSequenceOnBoard board) == 4
-
-type alias SequenceMemo =
-  {
-    last: Colour,
-    current: Int,
-    longest: Int,
-    sequenceColour: Colour
-  }
-
-type alias SequenceResult =
-  { colour : Colour, sequence : Int }
-
-type DiagonalDirection =
-  UpRight | DownRight | DownLeft | UpLeft
-
-type alias Coord = (Int, Int)
-
-initialMemo : SequenceMemo
-initialMemo =
-  { sequenceColour = NoColour, last = NoColour, current = 0, longest = 0 }
-
 
 getNewCoordsForDirection : DiagonalDirection -> Coord -> Coord
 getNewCoordsForDirection direction (x, y) =

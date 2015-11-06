@@ -11,43 +11,51 @@ import ConnectFour exposing (
 
 diagonalUpRightTest =
   let
-    firstBoard = fillCellOnBoard createBoard 0 0 Red
-    secondBoard = fillCellOnBoard firstBoard 1 1 Red
-    finalBoard = fillCellOnBoard secondBoard 2 2 Red
+    board =
+      createBoard
+        |> fillCellOnBoard (0, 0) Red
+        |> fillCellOnBoard (1, 1) Red
+        |> fillCellOnBoard (2, 2) Red
     expected = { sequence = 3, colour = Red }
   in
     test "diagonal up right sequence test"
-    (assertEqual expected (sequenceInDiagonal finalBoard 0 0))
+    (assertEqual expected (sequenceInDiagonal board 0 0))
 
 diagonalDownRightTest =
   let
-    firstBoard = fillCellOnBoard createBoard 3 3 Red
-    secondBoard = fillCellOnBoard firstBoard 4 2 Red
-    finalBoard = fillCellOnBoard secondBoard 5 1 Red
+    board =
+      createBoard
+        |> fillCellOnBoard (3, 3) Red
+        |> fillCellOnBoard (4, 2) Red
+        |> fillCellOnBoard (5, 1) Red
     expected = { sequence = 3, colour = Red }
   in
     test "diagonal down right sequence test"
-    (assertEqual expected (sequenceInDiagonal finalBoard 3 3))
+    (assertEqual expected (sequenceInDiagonal board 3 3))
 
 diagonalDownLeftTest =
   let
-    firstBoard = fillCellOnBoard createBoard 3 3 Red
-    secondBoard = fillCellOnBoard firstBoard 2 2 Red
-    finalBoard = fillCellOnBoard secondBoard 1 1 Yellow
+    board =
+      createBoard
+        |> fillCellOnBoard (3, 3) Red
+        |> fillCellOnBoard (2, 2) Red
+        |> fillCellOnBoard (1, 1) Yellow
     expected = { sequence = 2, colour = Red }
   in
     test "diagonal down left sequence test"
-    (assertEqual expected (sequenceInDiagonal finalBoard 3 3))
+    (assertEqual expected (sequenceInDiagonal board 3 3))
 
 diagonalUpLeftTest =
   let
-    firstBoard = fillCellOnBoard createBoard 3 3 Red
-    secondBoard = fillCellOnBoard firstBoard 2 4 Yellow
-    finalBoard = fillCellOnBoard secondBoard 1 5 Yellow
+    board =
+      createBoard
+        |> fillCellOnBoard (3, 3) Red
+        |> fillCellOnBoard (2, 4) Yellow
+        |> fillCellOnBoard (1, 5) Yellow
     expected = { sequence = 2, colour = Yellow }
   in
     test "diagonal up left sequence test"
-    (assertEqual expected (sequenceInDiagonal finalBoard 3 3))
+    (assertEqual expected (sequenceInDiagonal board 3 3))
 
 tests : Test
 tests =
