@@ -62,8 +62,8 @@ fillCellOnBoard (x, y) colour board =
   in
     List.map fillCellIfMatches board
 
-createBlankCell : Int -> Int -> Cell
-createBlankCell x y =
+createBlankCell : Coord -> Cell
+createBlankCell (x, y) =
   { x = x, y = y, colour = NoColour }
 
 createBoard : List Cell
@@ -72,12 +72,16 @@ createBoard =
     xValues = [0..maxXValue]
     yValues = [0..maxYValue]
   in
-    List.concatMap (\x -> (List.map (\y -> (createBlankCell x y)) yValues)) xValues
+    List.concatMap (\x -> (List.map (\y -> (createBlankCell (x, y))) yValues)) xValues
 
 boardHasWinner : Board -> Bool
 boardHasWinner board =
   .sequence (longestSequenceOnBoard board) == 4
 
+-- stuff from here down is finding sequences
+-- and needs to be split out really
+-- but that introduces a circular dependency
+-- the sep of concerns isn't right here
 getNewCoordsForDirection : DiagonalDirection -> Coord -> Coord
 getNewCoordsForDirection direction (x, y) =
   case direction of
