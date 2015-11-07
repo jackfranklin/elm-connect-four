@@ -16,7 +16,8 @@ type alias Model =
   {
     board: Board,
     currentPlayer: Colour,
-    currentMoveCol: Int
+    currentMoveCol: Int,
+    winningColour: Colour
   }
 
 initialModel : Model
@@ -24,7 +25,8 @@ initialModel =
   {
     board = createBoard,
     currentPlayer = Red,
-    currentMoveCol = 0
+    currentMoveCol = 0,
+    winningColour = NoColour
   }
 
 -- UPDATE
@@ -33,21 +35,39 @@ type Action =
   NoOp
   | MovePickerLeft
   | MovePickerRight
+  | PlaceCounterBelow
+
+makeMove : Model -> Model
+makeMove model =
+  if columnFull model.currentMoveCol model.board then
+     -- if the column is full NoOp
+    model
+  else
+    -- TODO: check if someone has won on newBoard
+    let
+      newBoard = placeCounter model.currentMoveCol model.currentPlayer model.board
+      newPlayer = if model.currentPlayer == Red then Yellow else Red
+    in
+      { model | board <- newBoard, currentPlayer <- newPlayer, currentMoveCol <- 0 }
+
 
 update : Action -> Model -> Model
 update action model =
-  case action of
+  case (log "action" action) of
     NoOp -> model
     MovePickerLeft ->
       if model.currentMoveCol == 0 then
-         model
+        model
        else
         { model | currentMoveCol <- (model.currentMoveCol - 1) }
     MovePickerRight ->
       if model.currentMoveCol == maxXValue then
-         model
+        model
        else
-          { model | currentMoveCol <- (model.currentMoveCol + 1) }
+        { model | currentMoveCol <- (model.currentMoveCol + 1) }
+    PlaceCounterBelow ->
+      makeMove model
+
 
 -- VIEW
 
@@ -69,7 +89,7 @@ drawCell cell =
 drawCounter: Model -> Form
 drawCounter model =
   circle 30
-    |> filled red
+    |> filled (cellColourToGraphic model.currentPlayer)
     |> moveX (toFloat (model.currentMoveCol - 3) * 80)
     |> moveY 240.00
 
@@ -95,21 +115,21 @@ view (w, h) model =
 
 -- SIGNALS
 
+-- TODO: could merge both below signals into one map
 columnPicker : Signal Action
 columnPicker =
-  let
-    x = Signal.map .x Keyboard.arrows
-    toAction n =
-      case n of
-        -1 -> MovePickerLeft
-        0  -> NoOp
-        1  -> MovePickerRight
-  in
-    Signal.map toAction x
+  Signal.filter (\x -> x /= 0) 0 (Signal.map .x Keyboard.arrows)
+   |> Signal.map (\n -> if n == -1 then MovePickerLeft else MovePickerRight)
+
+
+counterPlacer : Signal Action
+counterPlacer =
+  Signal.filter (\x -> x == -1) 0 (Signal.map .y Keyboard.arrows)
+    |> Signal.map (always PlaceCounterBelow)
 
 input : Signal Action
 input =
-  Signal.mergeMany [columnPicker]
+  Signal.mergeMany [columnPicker, counterPlacer]
 
 
 model : Signal Model
