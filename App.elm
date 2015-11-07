@@ -36,13 +36,27 @@ update action model =
 
 -- VIEW
 
+cellColourToGraphic : Colour -> Color
+cellColourToGraphic colour =
+  case colour of
+    Red -> red
+    Yellow -> yellow
+    _ -> white
+
 drawCell : Cell -> Form
 drawCell cell =
   circle 30
-    |> filled red
+    |> filled (cellColourToGraphic cell.colour)
     -- the -3 means the middle column ends up centred on the board
     |> moveX (toFloat (cell.x - 3) * 80)
     |> moveY (toFloat (cell.y - 3) * 80)
+
+drawCounter: Model -> Form
+drawCounter model =
+  circle 30
+    |> filled red
+    |> moveX (toFloat (model.currentMoveCol - 3) * 80)
+    |> moveY 240.00
 
 drawBoard : Board -> Form
 drawBoard board =
@@ -59,6 +73,7 @@ view (w, h) model =
   in
      collage w h [
        drawBackground (w', h'),
+       drawCounter model,
        drawBoard model.board
      ]
 
