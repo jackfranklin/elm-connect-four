@@ -130,6 +130,10 @@ drawWinner (w, h) colour =
       ] |> group
 
 
+drawBoardBackground : Form
+drawBoardBackground =
+  rect 560 480 |> filled blue |> moveY -38
+
 view : (Int, Int) -> Model -> Element
 view (w, h) model =
   let
@@ -138,6 +142,7 @@ view (w, h) model =
      collage w h [
        drawBackground (w', h'),
        drawCounter model,
+       drawBoardBackground,
        drawBoard model.board,
        drawWinner (w', h') model.winningColour
      ]
