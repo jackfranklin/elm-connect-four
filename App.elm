@@ -12,12 +12,18 @@ import ConnectFour exposing (..)
 
 type alias Model =
   {
-    cells: Board
+    board: Board,
+    currentPlayer: Colour,
+    currentMoveCol: Int
   }
 
 initialModel : Model
 initialModel =
-  { cells = createBoard }
+  {
+    board = createBoard,
+    currentPlayer = Red,
+    currentMoveCol = 0
+  }
 
 -- UPDATE
 
@@ -29,6 +35,19 @@ update action model =
     NoOp -> model
 
 -- VIEW
+
+drawCell : Cell -> Form
+drawCell cell =
+  circle 30
+    |> filled red
+    -- the -3 means the middle column ends up centred on the board
+    |> moveX (toFloat (cell.x - 3) * 80)
+    |> moveY (toFloat (cell.y - 3) * 80)
+
+drawBoard : Board -> Form
+drawBoard board =
+  List.map drawCell board |> group
+
 drawBackground : (Float, Float) -> Form
 drawBackground (w, h) =
   rect w h |> filled gray
@@ -38,9 +57,9 @@ view (w, h) model =
   let
     (w', h') = (toFloat w, toFloat h)
   in
-     collage w h
-     [
-       drawBackground (w', h')
+     collage w h [
+       drawBackground (w', h'),
+       drawBoard model.board
      ]
 
 
