@@ -1,6 +1,7 @@
 import Keyboard
 import Mouse
 import Window
+import Text
 
 import Graphics.Element exposing (..)
 import Graphics.Collage exposing (..)
@@ -36,6 +37,7 @@ type Action =
   | MovePickerLeft
   | MovePickerRight
   | PlaceCounterBelow
+  | RestartGame
 
 makeMove : Model -> Model
 makeMove model =
@@ -47,8 +49,13 @@ makeMove model =
     let
       newBoard = placeCounter model.currentMoveCol model.currentPlayer model.board
       newPlayer = if model.currentPlayer == Red then Yellow else Red
+      hasWon = boardHasWinner newBoard
+
     in
-      { model | board <- newBoard, currentPlayer <- newPlayer, currentMoveCol <- 0 }
+      { model | board <- newBoard,
+                currentPlayer <- newPlayer,
+                currentMoveCol <- 0,
+                winningColour <- if hasWon then model.currentPlayer else NoColour}
 
 
 update : Action -> Model -> Model
@@ -67,6 +74,8 @@ update action model =
         { model | currentMoveCol <- (model.currentMoveCol + 1) }
     PlaceCounterBelow ->
       makeMove model
+    RestartGame ->
+        initialModel
 
 
 -- VIEW
@@ -101,6 +110,26 @@ drawBackground : (Float, Float) -> Form
 drawBackground (w, h) =
   rect w h |> filled gray
 
+drawWinner : (Float, Float) -> Colour -> Form
+drawWinner (w, h) colour =
+  case colour of
+    NoColour -> rect 0 0 |> filled grey
+    colour ->
+      [
+        rect (w - 100) (h - 100) |> filled blue,
+        Text.fromString ("Winner! " ++ (toString colour))
+          |> Text.color white
+          |> Text.height 30
+          |> text,
+        Text.fromString "Press spacebar to restart"
+          |> Text.color white
+          |> Text.height 15
+          |> text
+          |> moveY -40
+
+      ] |> group
+
+
 view : (Int, Int) -> Model -> Element
 view (w, h) model =
   let
@@ -109,7 +138,8 @@ view (w, h) model =
      collage w h [
        drawBackground (w', h'),
        drawCounter model,
-       drawBoard model.board
+       drawBoard model.board,
+       drawWinner (w', h') model.winningColour
      ]
 
 
@@ -122,6 +152,11 @@ columnPicker =
    |> Signal.map (\n -> if n == -1 then MovePickerLeft else MovePickerRight)
 
 
+restart: Signal Action
+restart =
+  Signal.filter ((==) True) False Keyboard.space
+  |> Signal.map (always RestartGame)
+
 counterPlacer : Signal Action
 counterPlacer =
   Signal.filter (\x -> x == -1) 0 (Signal.map .y Keyboard.arrows)
@@ -129,7 +164,7 @@ counterPlacer =
 
 input : Signal Action
 input =
-  Signal.mergeMany [columnPicker, counterPlacer]
+  Signal.mergeMany [columnPicker, counterPlacer, restart]
 
 
 model : Signal Model
