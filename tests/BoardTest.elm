@@ -35,6 +35,30 @@ boardHasWinnerAssertion =
   in
     (assert (boardHasWinner board))
 
+
+placeColourAssertion =
+  let
+    board = createBoard |> fillCellOnBoard (0, 0) Yellow
+    newBoard = placeCounter 0 Red board
+    expected = { x = 0, y = 1, colour = Red }
+  in
+    assertEqual expected (findCellOnBoard newBoard (0, 1))
+
+placeColourAssertionBoardFull =
+  let
+    board =
+      createBoard
+        |> fillCellOnBoard (0, 0) Yellow
+        |> fillCellOnBoard (0, 1) Red
+        |> fillCellOnBoard (0, 2) Yellow
+        |> fillCellOnBoard (0, 3) Yellow
+        |> fillCellOnBoard (0, 4) Yellow
+        |> fillCellOnBoard (0, 5) Yellow
+  in
+    assertEqual (placeCounter 0 Red board) board
+
+
+
 tests : Test
 tests =
     suite "Board Tests"
@@ -58,5 +82,11 @@ tests =
           [
             test "it returns true if the board has a winner"
               boardHasWinnerAssertion
+          ],
+        suite "#placeColour"
+          [
+            test "it places the colour in the right slot" placeColourAssertion,
+            test "it does nothing if the column is full"
+              placeColourAssertionBoardFull
           ]
       ]

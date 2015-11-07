@@ -3,7 +3,7 @@ module ConnectFour where
 import Maybe exposing(Maybe(..))
 import Debug
 
-import List.Extra exposing(group, maximumBy)
+import List.Extra exposing(group, maximumBy, minimumBy)
 
 type Colour = Red | Yellow | NoColour
 
@@ -77,6 +77,35 @@ createBoard =
 boardHasWinner : Board -> Bool
 boardHasWinner board =
   .sequence (longestSequenceOnBoard board) == 4
+
+columnFull: Int -> Board -> Bool
+columnFull x board =
+  let
+    colourOfBiggestCell =
+      List.filter (\cell -> cell.x == x) board
+        |> maximumBy .y
+        -- this Maybe is superfluous, there will always be a cell
+        |> Maybe.withDefault { x = 0, y = 0, colour = NoColour }
+        |> .colour
+  in
+    colourOfBiggestCell /= NoColour
+
+placeCounter: Int -> Colour -> Board -> Board
+placeCounter x colour board =
+  if columnFull x board then
+     board
+  else
+    let
+      firstEmptyY =
+        List.filter (\cell -> cell.x == x) board
+          |> List.filter (\cell -> cell.colour == NoColour)
+          |> minimumBy .x
+          |> Maybe.withDefault { x = 0, y = 0, colour = NoColour }
+          |> .y
+    in
+      fillCellOnBoard (x, firstEmptyY) colour board
+
+
 
 -- stuff from here down is finding sequences
 -- and needs to be split out really
