@@ -1,7 +1,7 @@
 {
     "version": "1.0.0",
     "summary": "helpful summary of your project, less than 80 characters",
-    "repository": "https://github.com/USER/PROJECT.git",
+    "repository": "https://github.com/jackfrankin/elm-game-of-life.git",
     "license": "BSD3",
     "source-directories": [
         ".",
@@ -9,11 +9,9 @@
     ],
     "exposed-modules": [],
     "dependencies": {
-        "circuithub/elm-list-extra": "3.7.0 <= v < 4.0.0",
-        "deadfoxygrandpa/elm-test": "2.0.0 <= v < 3.0.0",
-        "elm-lang/core": "2.1.0 <= v < 3.0.0",
-        "jackfranklin/elm-console-log": "1.0.0 <= v < 2.0.0",
-        "laszlopandy/elm-console": "1.0.2 <= v < 2.0.0"
+        "circuithub/elm-list-extra": "3.9.0 <= v < 4.0.0",
+        "deadfoxygrandpa/elm-test": "3.1.0 <= v < 4.0.0",
+        "elm-lang/core": "3.0.0 <= v < 4.0.0"
     },
-    "elm-version": "0.15.1 <= v < 0.16.0"
+    "elm-version": "0.16.0 <= v < 0.17.0"
 }
