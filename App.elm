@@ -244,15 +244,10 @@ init =
     ( initialModel, getWindowSize )
 
 
-noCmdUpdateWrap : Msg -> Model -> ( Model, Cmd Msg )
-noCmdUpdateWrap msg model =
-    ( update msg model, Cmd.none )
-
-
 main =
     Html.program
         { init = init
         , view = view
-        , update = noCmdUpdateWrap
+        , update = (\msg model -> ( (update msg model), Cmd.none ))
         , subscriptions = subscriptions
         }
