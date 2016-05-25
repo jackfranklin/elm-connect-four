@@ -1,9 +1,11 @@
 module Main exposing (..)
 
 import Keyboard
+import Window
 import Html exposing (Html)
 import Html.App as Html
 import Text
+import Task
 import Element exposing (..)
 import Collage exposing (..)
 import Color exposing (..)
@@ -18,6 +20,7 @@ type alias Model =
     , currentPlayer : Colour
     , currentMoveCol : Int
     , winningColour : Colour
+    , window : Window.Size
     }
 
 
@@ -27,6 +30,7 @@ initialModel =
     , currentPlayer = Red
     , currentMoveCol = 0
     , winningColour = NoColour
+    , window = Window.Size 0 0
     }
 
 
@@ -40,6 +44,7 @@ type Msg
     | MovePickerRight
     | PlaceCounterBelow
     | RestartGame
+    | WindowResize Window.Size
 
 
 makeMove : Model -> Model
@@ -72,34 +77,32 @@ makeMove model =
             }
 
 
-wrapWithCmd : Model -> ( Model, Cmd Msg )
-wrapWithCmd model =
-    ( model, Cmd.none )
-
-
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg -> Model -> Model
 update action model =
     case action of
         NoOp ->
-            wrapWithCmd model
+            model
+
+        WindowResize size ->
+            { model | window = size }
 
         MovePickerLeft ->
             if model.currentMoveCol == 0 then
-                wrapWithCmd model
+                model
             else
-                wrapWithCmd { model | currentMoveCol = (model.currentMoveCol - 1) }
+                { model | currentMoveCol = (model.currentMoveCol - 1) }
 
         MovePickerRight ->
             if model.currentMoveCol == maxXValue then
-                wrapWithCmd model
+                model
             else
-                wrapWithCmd { model | currentMoveCol = (model.currentMoveCol + 1) }
+                { model | currentMoveCol = (model.currentMoveCol + 1) }
 
         PlaceCounterBelow ->
-            wrapWithCmd (makeMove model)
+            makeMove model
 
         RestartGame ->
-            wrapWithCmd initialModel
+            initialModel
 
 
 
@@ -178,12 +181,18 @@ drawBoardBackground =
 view : Model -> Html Msg
 view model =
     let
+        w =
+            model.window.width
+
+        h =
+            model.window.height
+
         ( w', h' ) =
-            ( toFloat 800, toFloat 800 )
+            ( toFloat w, toFloat h )
     in
         toHtml
-            <| collage 800
-                800
+            <| collage w
+                h
                 [ drawBackground ( w', h' )
                 , drawCounter model
                 , drawBoardBackground
@@ -214,19 +223,36 @@ keyboardPresses =
         )
 
 
+windowResizes : Sub Msg
+windowResizes =
+    Window.resizes WindowResize
+
+
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    keyboardPresses
+    Sub.batch
+        [ keyboardPresses
+        , windowResizes
+        ]
+
+
+getWindowSize =
+    Task.perform (\_ -> NoOp) WindowResize Window.size
 
 
 init =
-    ( initialModel, Cmd.none )
+    ( initialModel, getWindowSize )
+
+
+noCmdUpdateWrap : Msg -> Model -> ( Model, Cmd Msg )
+noCmdUpdateWrap msg model =
+    ( update msg model, Cmd.none )
 
 
 main =
     Html.program
         { init = init
         , view = view
-        , update = update
+        , update = noCmdUpdateWrap
         , subscriptions = subscriptions
         }
