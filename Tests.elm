@@ -1,23 +1,19 @@
-module Tests where
+module Tests exposing (..)
 
-import ElmTest.Assertion exposing (..)
-import ElmTest.Test exposing (..)
-
-import String
-
+import ElmTest exposing (..)
 import CellTest
 import BoardTest
 import SequenceFinderTest
 import DiagonalSequenceFinderTest
 import BuildingDiagonalTest
 
+
 all : Test
 all =
     suite "ConnectFour Tests"
-        [
-            CellTest.tests,
-            BoardTest.tests,
-            SequenceFinderTest.tests,
-            DiagonalSequenceFinderTest.tests,
-            BuildingDiagonalTest.tests
+        [ CellTest.tests
+        , BoardTest.tests
+        , SequenceFinderTest.tests
+        , DiagonalSequenceFinderTest.tests
+        , BuildingDiagonalTest.tests
         ]
