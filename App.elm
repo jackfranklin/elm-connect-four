@@ -102,7 +102,7 @@ update action model =
             makeMove model
 
         RestartGame ->
-            initialModel
+            { initialModel | window = model.window }
 
 
 
@@ -206,7 +206,7 @@ keyboardPresses =
     Keyboard.ups
         (\keyCode ->
             case keyCode of
-                30 ->
+                32 ->
                     RestartGame
 
                 37 ->
