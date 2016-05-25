@@ -1,11 +1,11 @@
 module Main exposing (..)
 
 import Keyboard
-import Mouse
-import Window
+import Html exposing (Html)
+import Html.App as Html
 import Text
-import Graphics.Element exposing (..)
-import Graphics.Collage exposing (..)
+import Element exposing (..)
+import Collage exposing (..)
 import Color exposing (..)
 import ConnectFour exposing (..)
 
@@ -34,7 +34,7 @@ initialModel =
 -- UPDATE
 
 
-type Action
+type Msg
     = NoOp
     | MovePickerLeft
     | MovePickerRight
@@ -45,10 +45,8 @@ type Action
 makeMove : Model -> Model
 makeMove model =
     if columnFull model.currentMoveCol model.board then
-        -- if the column is full NoOp
         model
     else
-        -- TODO: check if someone has won on newBoard
         let
             newBoard =
                 placeCounter model.currentMoveCol model.currentPlayer model.board
@@ -74,29 +72,34 @@ makeMove model =
             }
 
 
-update : Action -> Model -> Model
+wrapWithCmd : Model -> ( Model, Cmd Msg )
+wrapWithCmd model =
+    ( model, Cmd.none )
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
 update action model =
     case action of
         NoOp ->
-            model
+            wrapWithCmd model
 
         MovePickerLeft ->
             if model.currentMoveCol == 0 then
-                model
+                wrapWithCmd model
             else
-                { model | currentMoveCol = (model.currentMoveCol - 1) }
+                wrapWithCmd { model | currentMoveCol = (model.currentMoveCol - 1) }
 
         MovePickerRight ->
             if model.currentMoveCol == maxXValue then
-                model
+                wrapWithCmd model
             else
-                { model | currentMoveCol = (model.currentMoveCol + 1) }
+                wrapWithCmd { model | currentMoveCol = (model.currentMoveCol + 1) }
 
         PlaceCounterBelow ->
-            makeMove model
+            wrapWithCmd (makeMove model)
 
         RestartGame ->
-            initialModel
+            wrapWithCmd initialModel
 
 
 
@@ -172,61 +175,58 @@ drawBoardBackground =
     rect 560 480 |> filled blue |> moveY -38
 
 
-view : ( Int, Int ) -> Model -> Element
-view ( w, h ) model =
+view : Model -> Html Msg
+view model =
     let
         ( w', h' ) =
-            ( toFloat w, toFloat h )
+            ( toFloat 800, toFloat 800 )
     in
-        collage w
-            h
-            [ drawBackground ( w', h' )
-            , drawCounter model
-            , drawBoardBackground
-            , drawBoard model.board
-            , drawWinner ( w', h' ) model.winningColour
-            ]
+        toHtml
+            <| collage 800
+                800
+                [ drawBackground ( w', h' )
+                , drawCounter model
+                , drawBoardBackground
+                , drawBoard model.board
+                , drawWinner ( w', h' ) model.winningColour
+                ]
 
 
+keyboardPresses : Sub Msg
+keyboardPresses =
+    Keyboard.ups
+        (\keyCode ->
+            case keyCode of
+                30 ->
+                    RestartGame
 
--- SIGNALS
--- TODO: could merge both below signals into one map
-
-
-columnPicker : Signal Action
-columnPicker =
-    Signal.filter (\x -> x /= 0) 0 (Signal.map .x Keyboard.arrows)
-        |> Signal.map
-            (\n ->
-                if n == -1 then
+                37 ->
                     MovePickerLeft
-                else
+
+                39 ->
                     MovePickerRight
-            )
+
+                40 ->
+                    PlaceCounterBelow
+
+                _ ->
+                    NoOp
+        )
 
 
-restart : Signal Action
-restart =
-    Signal.filter ((==) True) False Keyboard.space
-        |> Signal.map (always RestartGame)
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    keyboardPresses
 
 
-counterPlacer : Signal Action
-counterPlacer =
-    Signal.filter (\x -> x == -1) 0 (Signal.map .y Keyboard.arrows)
-        |> Signal.map (always PlaceCounterBelow)
+init =
+    ( initialModel, Cmd.none )
 
 
-input : Signal Action
-input =
-    Signal.mergeMany [ columnPicker, counterPlacer, restart ]
-
-
-model : Signal Model
-model =
-    Signal.foldp update initialModel input
-
-
-main : Signal Element
 main =
-    Signal.map2 view Window.dimensions model
+    Html.program
+        { init = init
+        , view = view
+        , update = update
+        , subscriptions = subscriptions
+        }
